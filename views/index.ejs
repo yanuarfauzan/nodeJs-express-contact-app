@@ -1,0 +1,20 @@
+<%- include('layout/header') %>
+    <%- include('layout/nav') %>
+        <h1>Welcome to my site</h1>
+        <h2>Hallo <%= nama %>
+        </h2>
+        <h1>Daftar Mahasiswa </h1>
+        <% if (mahasiswa.length < 1) { %>
+            <p>data mahasiswa masih kosong</p>
+            <% } else { %>
+                <% mahasiswa.forEach(mhs=> { %>
+                    <ul>
+                        <li>
+                            <%= mhs.nama %>
+                        </li>
+                        <li>
+                            <%= mhs.kelas %>
+                        </li>
+                    </ul>
+                    <% }) } %>
+                        <%- include('layout/footer')%>

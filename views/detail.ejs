@@ -1,0 +1,29 @@
+<%- include('layout/header') %>
+    <%- include('layout/nav') %>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h2 class="mt-3">Detail Contact</h2>
+                    <% if (!contact) { %>
+                        <div class="alert alert-danger" role="alert">
+                            Data tidak tersedia <a href="/contact" class="alert-link">kembali ke halaman contact</a>
+                        </div>
+                        <% } else {%>
+                            <div class="card mt-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">Name : <%= contact.nama %>
+                                    </h5>
+                                    <p class="card-text">no hp : <%= contact.noHp %>
+                                    </p>
+                                    <a href="/contact/edit/<%= contact.nama %>" class="btn btn-warning badge">ubah</a>
+                                    <a href="/contact/delete/<%= contact.nama %>" class="btn btn-danger badge "
+                                        onclick="return confirm('yakin?');">hapus</a>
+                                    <a href="/contact" class="card-link d-block mt-3"> &laquo;Kembali ke daftar
+                                        contact</a>
+                                </div>
+                            </div>
+                            <% } %>
+                </div>
+            </div>
+        </div>
+        <%- include('layout/footer') %>

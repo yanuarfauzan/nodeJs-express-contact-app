@@ -1,0 +1,43 @@
+<%- include('layout/header') %>
+    <%- include('layout/nav') %>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h2 class="mt-3">Form Update Data</h2>
+                    <% if (typeof errors !='undefined' ) { %>
+                        <div class="alert alert-danger" role="alert">
+                            <ul>
+                                <% errors.forEach(err=> { %>
+                                    <li>
+                                        <%= err.msg %>
+                                    </li>
+                                    <% }) %>
+                            </ul>
+                        </div>
+                        <% } %>
+                            <form class="mt-3" method="post" action="/contact/update">
+                                <!-- kita bisa akses nama sebelum diubah -->
+                                <input type="hidden" name="oldNama"
+                                    value="<%= ( contact.oldNama ) ? contact.oldNama : contact.nama %>">
+                                <div class="mb-3">
+                                    <label for="nama" class="form-label">Nama</label>
+                                    <input type="text" class="form-control" id="nama" name="nama"
+                                        value="<%= contact.nama %>" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="noHp" class="form-label">No Hp</label>
+                                    <input type="text" class="form-control" id="noHp" name="noHp"
+                                        value="<%= contact.noHp %>" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="text" class="form-control" id="email" name="email"
+                                        value="<%= contact.email %>" required>
+                                </div>
+                                <button type="submit" class="btn btn-success">Ubah</button>
+                </div>
+                </form>
+            </div>
+        </div>
+        </div>
+        <%- include('layout/footer') %>
