@@ -1,6 +1,11 @@
 // menggunakan framework express js
 const express = require('express');
 
+// require koneksi db
+require('./utils/db');
+// require model contact
+const Contacts = require('./model/Contact');
+
 // express-session
 const session = require('express-session');
 
@@ -12,7 +17,9 @@ const flash = require('connect-flash');
 
 
 // loadContact
-const { loadContact, findContact, addContact, cekDuplikat, deleteContact, updateContact } = require('./utils/contacts');
+// const { loadContact, findContact, addContact, cekDuplikat, deleteContact, updateContact } = require('./utils/contacts');
+
+
 const app = express();
 const port = 3000;
 
@@ -37,7 +44,6 @@ const { body, validatonResult, validationResult, check } = require('express-vali
 
 // gunakan ejs
 app.set('view engine', 'ejs');
-
 // middleware url encoded
 app.use(express.urlencoded({ extended: true }));
 
@@ -62,9 +68,12 @@ app.get('/about', (req, res) => {
 })
 
 // route contact
-app.get('/contact', (req, res) => {
+app.get('/contact', async (req, res) => {
+
     // mengambil data dari JSON untuk di read di contact.ejs
-    const contacts = loadContact();
+    // const contacts = loadContact();
+
+    const contacts = await Contacts.find();
     const title = 'Contact';
     res.render('contact', { title, contacts, msg: req.flash('msg') });
 })
@@ -184,8 +193,12 @@ app.post('/contact/update',
     });
 
 // route detail contact
-app.get('/contact/:nama', (req, res) => {
-    const contact = findContact(req.params.nama);
+app.get('/contact/:nama', async (req, res) => {
+    // cari contact berdasarkan nama di file json
+    // const contact = findContact(req.params.nama);
+
+    // cari contact berdasarkan nama dari mongodb
+    const contact = await Contacts.findOne({ nama: req.params.nama })
 
     const title = 'Detail Contact';
     res.render('detail', { title, contact });
