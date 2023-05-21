@@ -1,8 +1,12 @@
 // menggunakan framework express js
 const express = require('express');
 
+// method override
+const methodOverride = require('method-override');
+
 // require koneksi db
 require('./utils/db');
+
 // require model contact
 const Contacts = require('./model/Contact');
 
@@ -22,6 +26,9 @@ const flash = require('connect-flash');
 
 const app = express();
 const port = 3000;
+
+// setup method oberride
+app.use(methodOverride('_method'));
 
 // configurasi flash
 
@@ -90,8 +97,13 @@ app.get('/contact/add', (req, res) => {
 app.post('/contact',
     [
         // cek nama apakah sudah ada atau belum
-        body('nama').custom((value) => {
-            const duplikat = cekDuplikat(value);
+        body('nama').custom(async (value) => {
+            // cek duplikat manual
+            // const duplikat = cekDuplikat(value);
+
+            // cek duplikat menggunakan mongoose/mongodb
+            const duplikat = await Contacts.findOne({ nama: value });
+
             // kalau sudah ada maka tampilkan error
             if (duplikat) {
                 throw new Error('Nama contact sudah ada');
@@ -117,44 +129,64 @@ app.post('/contact',
                     errors: errors.array()
                 })
         } else {
+            // insert object menggunakan mongoose/mongodb
+            Contacts.insertMany(req.body, (error, result) => {
 
-            addContact(req.body);
+                // kirimkan flash message
+                req.flash('msg', 'Data contact berhasil ditambahkan');
+                // alihkan ke view contact
+                res.redirect('/contact');
+            });
 
-            // kirimkan flash message
-            req.flash('msg', 'Data contact berhasil ditambahkan');
-            // alihkan ke view contact
-            res.redirect('/contact');
         }
 
     });
 
 // route delete contact
-app.get('/contact/delete/:nama', (req, res) => {
-    const contact = findContact(req.params.nama);
-    // jika contact tidak ada
-    if (!contact) {
-        res.status(404);
-        res.send('<h1>404</h1>')
-    } else {
-        deleteContact(req.params.nama);
+// app.get('/contact/delete/:nama', async (req, res) => {
+//     // Manual
+//     // const contact = findContact(req.params.nama);
+
+//     // mongodb
+//     const contact = await Contacts.findOne({ nama: req.params.nama });
+//     // jika contact tidak ada
+//     if (!contact) {
+//         res.status(404);
+//         res.send('<h1>404</h1>')
+//     } else {
+//         // manual 
+//         // deleteContact(req.params.nama);
+//         // mongodb
+//         Contacts.deleteOne({ _id: contact._id }).then((result) => {
+
+//             req.flash('msg', 'Data contact berhasil dihapus');
+//             res.redirect('/contact');
+//         });
+//     }
+// })
+
+app.delete('/contact', (req, res) => {
+    Contacts.deleteOne({ nama: req.body.nama }).then((result) => {
         req.flash('msg', 'Data contact berhasil dihapus');
         res.redirect('/contact');
-    }
+    });
 })
 
+
+
 // route edit data contact
-app.get('/contact/edit/:nama', (req, res) => {
+app.get('/contact/edit/:nama', async (req, res) => {
     const title = 'Form Ubah Data';
-    const contact = findContact(req.params.nama);
+    const contact = await Contacts.findOne({ nama: req.params.nama });
     res.render('editContact', { title, contact });
 })
 
 // route update data contact
-app.post('/contact/update',
+app.put('/contact',
     [
         // cek nama apakah sudah ada atau belum
-        body('nama').custom((value, { req }) => {
-            const duplikat = cekDuplikat(value);
+        body('nama').custom(async (value, { req }) => {
+            const duplikat = await Contacts.findOne({ nama: value });
             // kalau sudah ada maka tampilkan error
             if (value !== req.body.oldNama && duplikat) {
                 throw new Error('Nama contact sudah ada');
@@ -182,12 +214,23 @@ app.post('/contact/update',
                 })
         } else {
 
-            updateContact(req.body);
+            Contacts.updateOne(
+                { _id: req.body._id },
+                {
+                    $set: {
+                        nama: req.body.nama,
+                        noHp: req.body.noHp,
+                        email: req.body.email,
+                    }
+                }
+            ).then((result) => {
 
-            // kirimkan flash message
-            req.flash('msg', 'Data contact berhasil diubah');
-            // alihkan ke view contact
-            res.redirect('/contact');
+
+                // kirimkan flash message
+                req.flash('msg', 'Data contact berhasil diubah');
+                // alihkan ke view contact
+                res.redirect('/contact');
+            });
         }
 
     });

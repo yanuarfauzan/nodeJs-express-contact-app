@@ -15,8 +15,9 @@
                             </ul>
                         </div>
                         <% } %>
-                            <form class="mt-3" method="post" action="/contact/update">
+                            <form class="mt-3" method="post" action="/contact?_method=PUT">
                                 <!-- kita bisa akses nama sebelum diubah -->
+                                <input type="hidden" name="_id" value="<%= contact._id %>">
                                 <input type="hidden" name="oldNama"
                                     value="<%= ( contact.oldNama ) ? contact.oldNama : contact.nama %>">
                                 <div class="mb-3">
